@@ -7,8 +7,9 @@
 
 (provide (contract-out
           [ipv4-address? (-> any/c boolean?)]
-          [ipv4-address (-> exact-integer? ipv4-address?)]
-          [parse-ipv4 (-> string? ipv4-address?)]))
+          [ipv4-address (-> exact-nonnegative-integer? ipv4-address?)]
+          [bytes->ipv4-address (-> bytes? ipv4-address?)]
+          [string->ipv4-address (-> string? ipv4-address?)]))
 
 (define MIN-IPV4-VALUE 0)
 (define MAX-IPV4-VALUE (sub1 (expt 256 4)))
@@ -59,10 +60,16 @@
 
    (define (ip-address->version addr) 4)])
 
-(define (parse-ipv4 ip)
+(define (bytes->ipv4-address ip)
+  (unless (= (bytes-length ip) 4)
+    (raise-argument-error 'bytes->ipv4-address "exactly 4 bytes" ip))
+
+  (apply make-ipv4 (bytes->list ip)))
+
+(define (string->ipv4-address ip)
   (define octets (map string->number (string-split ip ".")))
   (unless (andmap ipv4-octet? octets)
-    (raise-argument-error 'parse-ipv4 "a valid IPv4 address" ip))
+    (raise-argument-error 'string->ipv4-address "a valid IPv4 address" ip))
 
   (match octets
     [(list o1)
@@ -77,7 +84,7 @@
     [(list o1 o2 o3 o4)
      (make-ipv4 o1 o2 o3 o4)]
 
-    [_ (raise-argument-error 'parse-ipv4 "4 octets separated by dots" ip)]))
+    [_ (raise-argument-error 'string->ipv4-address "4 octets separated by dots" ip)]))
 
 (define (make-ipv4 o1 o2 o3 o4)
   (ipv4-address (+ o4
