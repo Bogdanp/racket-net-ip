@@ -51,13 +51,29 @@
       (check-exn exn:fail:contract? (lambda () (ip-address-inc (parse-ipv4 "255.255.255.255"))))))
 
    (test-suite
+    "ip-address->bytes"
+
+    (test-case "converts ip addresses to bytes in network (big endian) order"
+      (check-equal? (ip-address->bytes (parse-ipv4 "127"))           #"\x00\x00\x00\x7F")
+      (check-equal? (ip-address->bytes (parse-ipv4 "127.0.0.1"))     #"\x7F\x00\x00\x01")
+      (check-equal? (ip-address->bytes (parse-ipv4 "192.168.0.1"))   #"\xC0\xA8\x00\x01")
+      (check-equal? (ip-address->bytes (parse-ipv4 "255.255.255.0")) #"\xFF\xFF\xFF\x00")))
+
+   (test-suite
     "ip-address->string"
 
     (test-case "converts ip addresses to strings"
       (check-equal? (ip-address->string (parse-ipv4 "127")) "0.0.0.127")
       (check-equal? (ip-address->string (parse-ipv4 "127.0.0.0")) "127.0.0.0")
       (check-equal? (ip-address->string (parse-ipv4 "192.168.0.1")) "192.168.0.1")
-      (check-equal? (ip-address->string (parse-ipv4 "255.255.255.255")) "255.255.255.255")))))
+      (check-equal? (ip-address->string (parse-ipv4 "255.255.255.255")) "255.255.255.255")))
+
+   (test-suite
+    "ip-address->version"
+
+    (test-case "always returns 4"
+      (check-eq? (ip-address->version (parse-ipv4 "127")) 4)
+      (check-eq? (ip-address->version (parse-ipv4 "255.255.255.255")) 4)))))
 
 (module+ test
   (require rackunit/text-ui)

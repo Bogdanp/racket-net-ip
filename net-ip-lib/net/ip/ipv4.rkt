@@ -17,11 +17,19 @@
   (= (ipv4-address-value a)
      (ipv4-address-value b)))
 
-(define (ipv4-hash-1 addr recursive-equal-hash?)
+(define (ipv4-address-hash-1 addr recursive-equal-hash?)
   (ipv4-address-value addr))
 
-(define (ipv4-hash-2 addr recursive-equal-hash?)
+(define (ipv4-address-hash-2 addr recursive-equal-hash?)
   (ipv4-address-value addr))
+
+(define (ipv4-address-octets addr)
+  (let loop ([n (ipv4-address-value addr)]
+             [s '()])
+    (cond
+      [(= (length s) 4) s]
+      [else (loop (quotient n 256)
+                  (cons (remainder n 256) s))])))
 
 (struct ipv4-address (value)
   #:guard
@@ -33,8 +41,8 @@
 
   #:methods gen:equal+hash
   [(define equal-proc ipv4-address=?)
-   (define hash-proc  ipv4-hash-1)
-   (define hash2-proc ipv4-hash-2)]
+   (define hash-proc  ipv4-address-hash-1)
+   (define hash2-proc ipv4-address-hash-2)]
 
   #:methods gen:ip-address
   [(define (ip-address-dec addr [n 1])
@@ -43,16 +51,11 @@
    (define (ip-address-inc addr [n 1])
      (ipv4-address (+ (ipv4-address-value addr) n)))
 
-   (define (ip-address->number addr)
-     (ipv4-address-value addr))
+   (define (ip-address->bytes addr)
+     (apply bytes (ipv4-address-octets addr)))
 
    (define (ip-address->string addr)
-     (let loop ([n (ipv4-address-value addr)]
-                [s '()])
-       (if (= 4 (length s))
-           (string-join (map number->string s) ".")
-           (loop (quotient n 256)
-                 (cons (remainder n 256) s)))))
+     (string-join (map number->string (ipv4-address-octets addr)) "."))
 
    (define (ip-address->version addr) 4)])
 
