@@ -6,3 +6,5 @@
 (define build-deps '("base"
                      "net-ip-lib"
                      "rackunit-lib"))
+
+(define update-implies '("net-ip-lib"))
