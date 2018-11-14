@@ -2,10 +2,17 @@
 
 (require net/ip
          net/ip/ipv4
+         quickcheck
+         quickcheck/generator
          racket/stream
-         rackunit)
+         rackunit
+         rackunit/quickcheck)
 
 (provide ipv4-tests)
+
+(define (choose-ipv4-address #:lo [lo 0]
+                             #:hi [hi (sub1 (expt 2 32))])
+  (lift->generator ipv4-address (choose-integer lo hi)))
 
 (define ipv4-tests
   (test-suite
@@ -43,6 +50,78 @@
        (check-exn exn:fail:contract? (lambda () (string->ipv4-address "")))
        (check-exn exn:fail:contract? (lambda () (string->ipv4-address "256.256.256.256")))
        (check-exn exn:fail:contract? (lambda () (string->ipv4-address "255.255.255.255.255")))))
+
+    (test-suite
+     "ip-address<?"
+
+     (test-case "#f when the addresses are the same"
+       (check-property
+         (property ([ip (choose-ipv4-address)])
+           (not (ip-address<? ip ip)))))
+
+     (test-case "#f when the first addr is larger than the second"
+       (check-property
+         (property ([ip (choose-ipv4-address #:lo 1)])
+           (not (ip-address<? ip (ip-address-dec ip))))))
+
+     (test-case "#t when the first addr is smaller than the second"
+       (check-property
+         (property ([ip (choose-ipv4-address #:hi (- (expt 2 32) 2))])
+           (ip-address<? ip (ip-address-inc ip))))))
+
+    (test-suite
+     "ip-address<=?"
+
+     (test-case "#t when the addresses are the same"
+       (check-property
+         (property ([ip (choose-ipv4-address)])
+           (ip-address<=? ip ip))))
+
+     (test-case "#f when the first addr is larger than the second"
+       (check-property
+         (property ([ip (choose-ipv4-address #:lo 1)])
+           (not (ip-address<=? ip (ip-address-dec ip))))))
+
+     (test-case "#t when the first addr is smaller than the second"
+       (check-property
+         (property ([ip (choose-ipv4-address #:hi (- (expt 2 32) 2))])
+           (ip-address<=? ip (ip-address-inc ip))))))
+
+    (test-suite
+     "ip-address>?"
+
+     (test-case "#f when the addresses are the same"
+       (check-property
+         (property ([ip (choose-ipv4-address)])
+           (not (ip-address>? ip ip)))))
+
+     (test-case "#t when the first addr is larger than the second"
+       (check-property
+         (property ([ip (choose-ipv4-address #:lo 1)])
+           (ip-address>? ip (ip-address-dec ip)))))
+
+     (test-case "#f when the first addr is smaller than the second"
+       (check-property
+         (property ([ip (choose-ipv4-address #:hi (- (expt 2 32) 2))])
+           (not (ip-address>? ip (ip-address-inc ip)))))))
+
+    (test-suite
+     "ip-address>=?"
+
+     (test-case "#t when the addresses are the same"
+       (check-property
+         (property ([ip (choose-ipv4-address)])
+           (ip-address>=? ip ip))))
+
+     (test-case "#t when the first addr is larger than the second"
+       (check-property
+         (property ([ip (choose-ipv4-address #:lo 1)])
+           (ip-address>=? ip (ip-address-dec ip)))))
+
+     (test-case "#f when the first addr is smaller than the second"
+       (check-property
+         (property ([ip (choose-ipv4-address #:hi (- (expt 2 32) 2))])
+           (not (ip-address>=? ip (ip-address-inc ip)))))))
 
     (test-suite
      "ip-address-dec"

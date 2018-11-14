@@ -63,13 +63,33 @@
    (define hash2-proc ipv4-address-hash-2)]
 
   #:methods gen:ip-address
-  [(define (ip-address-dec addr [n 1])
+  [(define (ip-address=? addr other)
+     (equal? addr other))
+
+   (define (ip-address<? addr other)
+     (< (ipv4-address-value addr)
+        (ipv4-address-value other)))
+
+   (define (ip-address>? addr other)
+     (> (ipv4-address-value addr)
+        (ipv4-address-value other)))
+
+   (define (ip-address<=? addr other)
+     (<= (ipv4-address-value addr)
+         (ipv4-address-value other)))
+
+   (define (ip-address>=? addr other)
+     (>= (ipv4-address-value addr)
+         (ipv4-address-value other)))
+
+   (define (ip-address-dec addr [n 1])
      (ipv4-address (- (ipv4-address-value addr) n)))
 
    (define (ip-address-inc addr [n 1])
      (ipv4-address (+ (ipv4-address-value addr) n)))
 
-   (define (ip-address-version addr) 4)
+   (define (ip-address-version addr)
+     4)
 
    (define (ip-address->bytes addr)
      (apply bytes (ipv4-address-octets addr)))
@@ -92,17 +112,10 @@
     (raise-argument-error 'string->ipv4-address "a valid IPv4 address" ip))
 
   (match octets
-    [(list o1)
-     (make-ipv4 0 0 0 o1)]
-
-    [(list o1 o4)
-     (make-ipv4 o1 0 0 o4)]
-
-    [(list o1 o2 o4)
-     (make-ipv4 o1 o2 0 o4)]
-
-    [(list o1 o2 o3 o4)
-     (make-ipv4 o1 o2 o3 o4)]
+    [(list o1)          (make-ipv4 0  0  0  o1)]
+    [(list o1 o4)       (make-ipv4 o1 0  0  o4)]
+    [(list o1 o2 o4)    (make-ipv4 o1 o2 0  o4)]
+    [(list o1 o2 o3 o4) (make-ipv4 o1 o2 o3 o4)]
 
     [_ (raise-argument-error 'string->ipv4-address "4 octets separated by dots" ip)]))
 
@@ -123,16 +136,14 @@
 (define MAX-IPV4-PREFIX 32)
 
 (define (ipv4-network=? a b recursive-equal?)
-  (and
-   (= (ipv4-network-prefix a)
-      (ipv4-network-prefix b))
-   (equal? (ipv4-network-address a)
-           (ipv4-network-address b))))
+  (and (= (ipv4-network-prefix a)
+          (ipv4-network-prefix b))
+       (equal? (ipv4-network-address a)
+               (ipv4-network-address b))))
 
 (define (ipv4-network-hash net recursive-equal-hash?)
-  (+
-   (* (ipv4-address-hash-1 (ipv4-network-address net)) 1)
-   (* (ipv4-network-prefix net) (expt 256 4))))
+  (+ (* (ipv4-address-hash-1 (ipv4-network-address net)) 1)
+     (* (ipv4-network-prefix net) (expt 256 4))))
 
 (struct ipv4-network (address prefix)
   #:guard
@@ -145,7 +156,7 @@
       (raise-argument-error 'ipv4-network "a prefix value between 0 and 32" prefix))
 
     (when (not (= 0 (bitwise-and (ip-address->number address)
-                               (sub1 (expt 2 (- 32 prefix))))))
+                                 (sub1 (expt 2 (- 32 prefix))))))
       (raise-arguments-error 'ipv4-network "network has host bits set"
                              "address" (ip-address->string address)
                              "prefix" prefix))
@@ -181,14 +192,15 @@
                        (bitwise-and (ip-address->number (network-netmask net))
                                     (ip-address->number addr)))))
 
-   (define (network-version net) 4)
+   (define (network-version net)
+     4)
 
    (define (network->string net)
      (~a (ip-address->string (ipv4-network-address net)) "/" (ipv4-network-prefix net)))
 
    (define (network->stream net)
      (for/stream ([i (in-range 0 (network-size net))])
-                 (ip-address-inc (network-address net) i)))])
+       (ip-address-inc (network-address net) i)))])
 
 (define (string->ipv4-network net)
   (match (string-split net "/")

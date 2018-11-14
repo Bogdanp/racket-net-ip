@@ -7,6 +7,11 @@
 
          (contract-out
           [ip-address? (-> any/c boolean?)]
+          [ip-address=? (-> ip-address? ip-address? boolean?)]
+          [ip-address<? (-> ip-address? ip-address? boolean?)]
+          [ip-address>? (-> ip-address? ip-address? boolean?)]
+          [ip-address<=? (-> ip-address? ip-address? boolean?)]
+          [ip-address>=? (-> ip-address? ip-address? boolean?)]
           [ip-address-dec (->* (ip-address?) (exact-integer?) ip-address?)]
           [ip-address-inc (->* (ip-address?) (exact-integer?) ip-address?)]
           [ip-address-version (-> ip-address? (or/c 4 6))]
@@ -15,6 +20,11 @@
           [ip-address->string (-> ip-address? string?)]))
 
 (define-generics ip-address
+  (ip-address=? ip-address other)
+  (ip-address<? ip-address other)
+  (ip-address>? ip-address other)
+  (ip-address<=? ip-address other)
+  (ip-address>=? ip-address other)
   (ip-address-dec ip-address [n])
   (ip-address-inc ip-address [n])
   (ip-address-version ip-address)
