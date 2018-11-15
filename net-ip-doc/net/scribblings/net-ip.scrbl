@@ -6,6 +6,7 @@
 
 @title{IP Addresses}
 @author[(author+email "Bogdan Popa" "bogdan@defn.io")]
+@defmodule[net/ip]
 
 @section{Introduction}
 
@@ -14,7 +15,6 @@ networks in Racket.
 
 
 @section{Generic IP Addresses and Networks}
-@defmodule[net/ip]
 
 All IP addresses and network versions support the operations that follow.
 
@@ -28,6 +28,9 @@ All IP addresses and network versions support the operations that follow.
     (make-ip-address "127.0.0.1")
     (make-ip-address #"\x7F\x00\x00\x01")
     (make-ip-address 127 4)
+    (make-ip-address "::1")
+    (make-ip-address #"\xFF\xFF\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+    (make-ip-address "2001:db8::1")
   ]
 }
 
@@ -41,14 +44,16 @@ All IP addresses and network versions support the operations that follow.
     (make-network "127.0.0.0/24")
     (make-network "127.0.0.0" 24)
     (make-network (make-ip-address "127.0.0.0") 24)
+    (make-network "::1/128")
+    (make-network "::1" 128)
+    (make-network (make-ip-address "::1") 128)
   ]
 }
 
 @subsection{IP Address Operations}
 
-@deftogether[(@defidform[#:kind "interface" gen:ip-address]
-              @defproc[(ip-address? [addr any/c]) boolean?])]{
-  The generic interface that specifies IP addresses.
+@defproc[(ip-address? [addr any/c]) boolean?]{
+  Return @racket[#t] when @racket[addr] is an IP address.
 }
 
 @deftogether[(@defproc[(ip-address=? [addr ip-address?] [other ip-address?]) boolean?]
@@ -56,7 +61,9 @@ All IP addresses and network versions support the operations that follow.
               @defproc[(ip-address<=? [addr ip-address?] [other ip-address?]) boolean?]
               @defproc[(ip-address>? [addr ip-address?] [other ip-address?]) boolean?]
               @defproc[(ip-address>=? [addr ip-address?] [other ip-address?]) boolean?])]{
-  Compare @racket[addr] and @racket[other].
+  Compare @racket[addr] and @racket[other].  These functions raise
+  @racket[exn:fail:contract?] when the two addresses are of different
+  versions.
 }
 
 @defproc[(ip-address-dec [addr ip-address?] [n exact-integer? 1]) ip-address?]{
@@ -69,6 +76,12 @@ All IP addresses and network versions support the operations that follow.
   Return an @racket[ip-address?] greater than @racket[addr] by @racket[n].
   Raises @racket[exn:fail:contract?] if the resulting address would be
   greater than the maximum address for that particular version.
+}
+
+@defproc[(ip-address-size [addr ip-address?]) (or/c 32 128)]{
+  Return @racket[32] or @racket[128] depending on the version of
+  @racket[addr].  This number represents the size in bits of each type
+  of address.
 }
 
 @defproc[(ip-address-version [addr ip-address?]) (or/c 4 6)]{
@@ -87,11 +100,17 @@ All IP addresses and network versions support the operations that follow.
   Convert @racket[addr] to a string.
 }
 
+
 @subsection{Network Operations}
 
-@deftogether[(@defidform[#:kind "interface" gen:network]
-              @defproc[(network? [net any/c]) boolean?])]{
-  The generic interface that specifies networks of IP addresses.
+@defproc[(network? [net any/c]) boolean?]{
+  Return @racket[#t] when @racket[net] is a network.
+}
+
+@defproc[(network [addr ip-address?] [prefix exact-nonnegative-integer?]) network?]{
+  Construct a network from @racket[addr] and @racket[prefix].  Raises
+  @racket[exn:fail:contract?] if @racket[prefix] is too large for
+  @racket[addr].
 }
 
 @defproc[(network-address [net network?]) ip-address?]{
@@ -133,21 +152,13 @@ All IP addresses and network versions support the operations that follow.
 
 
 @section{IPv4}
-@defmodule[net/ip/ipv4]
 
-This module exposes functions specific to working with IPv4 addresses
-and networks.
+These functions are specific to IPv4 addresses.
 
 @subsection{IPv4 Addresses}
 
 @defproc[(ipv4-address? [addr any/c]) boolean?]{
   Return @racket[#t] when @racket[addr] is an IPv4 address.
-}
-
-@defproc[(ipv4-address [value exact-nonnegative-integer?]) ipv4-address?]{
-  Return the IPv4 address represented by @racket[value].
-  @racket[value] must be between 0 and 2^32-1, otherwise an
-  @racket[exn:fail:contract?] is raised.
 }
 
 @defproc[(bytes->ipv4-address [bs bytes?]) ipv4-address?]{
@@ -156,50 +167,55 @@ and networks.
   @racket[exn:fail:contract?] is raised.
 }
 
+@defproc[(number->ipv4-address [value exact-nonnegative-integer?]) ipv4-address?]{
+  Return the IPv4 address represented by @racket[value].
+  @racket[value] must be between 0 and 2^32-1, otherwise an
+  @racket[exn:fail:contract?] is raised.
+}
+
 @defproc[(string->ipv4-address [ip string?]) ipv4-address?]{
   Parse an IPv4 address.  Includes support for compressed notation,
   similar to what is available on most UNIX systems.
 
   @examples[
-    (require net/ip/ipv4)
+    (require net/ip)
     (string->ipv4-address "127.0.0.1")
     (string->ipv4-address "127.1")
     (string->ipv4-address "192.168.1")
   ]
 }
 
-@subsection{IPv4 Networks}
-
-@defproc[(ipv4-network? [net any/c]) boolean?]{
-  Return @racket[#t] when @racket[net] is an IPv4 network.
-}
-
-@defproc[(ipv4-network [addr ip-address?] [prefix exact-nonnegative-integer?]) ipv4-network?]{
-  Return the IPv4 network represented by @racket[addr] and
-  @racket[prefix].  @racket[prefix] must be between 0 and 32,
-  otherwise an @racket[exn:fail:contract?] is raised.
-}
-
-@defproc[(string->ipv4-network [ip string?]) ipv4-network?]{
-  Parse CIDR block notation to an IPv4 network.  Raises an
-  @racket[exn:fail:contract?] if the network address overlaps with a
-  host address within the network.
-
-  @examples[
-    (require net/ip/ipv4)
-    (string->ipv4-network "0.0.0.0/32")
-    (string->ipv4-network "127.0/24")
-    (string->ipv4-network "192.168.1.0/30")
-  ]
-}
-
 
 @section{IPv6}
 
+These functions are specific to IPv6 addresses.
+
 @subsection{IPv6 Addresses}
 
-IPv6 addresses are not yet supported.
+@defproc[(ipv6-address? [addr any/c]) boolean?]{
+  Return @racket[#t] when @racket[addr] is an IPv6 address.
+}
 
-@subsection{IPv6 Networks}
+@defproc[(bytes->ipv6-address [bs bytes?]) ipv6-address?]{
+  Unpack a byte array into an IPv6 address.  Must be exactly four
+  bytes long and in big endian order, otherwise an
+  @racket[exn:fail:contract?] is raised.
+}
 
-IPv6 networks are not yet supported.
+@defproc[(number->ipv6-address [value exact-nonnegative-integer?]) ipv6-address?]{
+  Return the IPv6 address represented by @racket[value].
+  @racket[value] must be between 0 and 2^128-1, otherwise an
+  @racket[exn:fail:contract?] is raised.
+}
+
+@defproc[(string->ipv6-address [ip string?]) ipv6-address?]{
+  Parse an IPv6 address.  Includes support for compressed notation,
+  similar to what is available on most UNIX systems.
+
+  @examples[
+    (require net/ip)
+    (string->ipv6-address "::1")
+    (string->ipv6-address "ff:ab:cd::ff")
+    (string->ipv6-address "201:db:ee::1")
+  ]
+}

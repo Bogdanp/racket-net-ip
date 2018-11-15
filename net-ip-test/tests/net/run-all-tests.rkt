@@ -1,15 +1,17 @@
 #lang racket/base
 
 (require rackunit
-         "ip.rkt"
-         "ip/ipv4.rkt")
+         "ip/common.rkt"
+         "ip/ip.rkt"
+         "ip/network.rkt")
 
 (define all-ip-tests
   (test-suite
-   "net-ip-lib"
+   "net/ip"
 
+   common-tests
    ip-tests
-   ipv4-tests))
+   network-tests))
 
 (module+ main
   (require rackunit/text-ui)
