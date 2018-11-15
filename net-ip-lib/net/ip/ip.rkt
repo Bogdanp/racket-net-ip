@@ -16,7 +16,7 @@
           [ip-address-inc (->* (ip-address?) (exact-integer?) ip-address?)]
           [ip-address-version (-> ip-address? (or/c 4 6))]
           [ip-address->bytes (-> ip-address? bytes?)]
-          [ip-address->number (-> ip-address? number?)]
+          [ip-address->number (-> ip-address? exact-nonnegative-integer?)]
           [ip-address->string (-> ip-address? string?)]))
 
 (define-generics ip-address

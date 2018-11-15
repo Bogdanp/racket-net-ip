@@ -10,6 +10,7 @@
          (contract-out
           [network? (-> any/c boolean?)]
           [network-address (-> network? ip-address?)]
+          [network-prefix (-> network? exact-nonnegative-integer?)]
           [network-hostmask (-> network? ip-address?)]
           [network-netmask (-> network? ip-address?)]
           [network-size (-> network? exact-nonnegative-integer?)]
@@ -20,6 +21,7 @@
 
 (define-generics network
   (network-address network)
+  (network-prefix network)
   (network-hostmask network)
   (network-netmask network)
   (network-size network)

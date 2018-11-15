@@ -1,4 +1,4 @@
 #lang info
 
 (define scribblings
-  '(("scribblings/ip.scrbl" ())))
+  '(("scribblings/net-ip.scrbl" ())))

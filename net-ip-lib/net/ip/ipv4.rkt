@@ -178,6 +178,9 @@
   [(define (network-address net)
      (ipv4-network-address net))
 
+   (define (network-prefix net)
+     (ipv4-network-prefix net))
+
    (define (network-hostmask net)
      (ipv4-address (sub1 (network-size net))))
 
