@@ -9,7 +9,7 @@
 (provide (contract-out
           [make-ip-address (case->
                             (-> exact-nonnegative-integer? (or/c 4 6) ip-address?)
-                            (-> (or/c string? ipv4-address-bytes? ipv6-address-bytes?) ip-address?))]
+                            (-> (or/c string? bytes?) ip-address?))]
 
           [ip-address? (-> any/c boolean?)]
           [ip-address=? (-> ip-address? ip-address? boolean?)]
@@ -61,10 +61,11 @@
                             #:version version
                             #:field-count [field-count (or (and (= version 4) 4) 8)]
                             #:field-size  [field-size  (or (and (= version 4) 8) 16)])
-  (define value (for/fold ([v 0])
-                          ([f fields]
-                           [e (in-range (sub1 field-count) -1 -1)])
-                  (+ v (* f (expt (expt 2 field-size) e)))))
+  (define value
+    (for/fold ([v 0])
+              ([f fields]
+               [e (in-range (sub1 field-count) -1 -1)])
+      (+ v (* f (expt (expt 2 field-size) e)))))
 
   (ip-address value version (* field-count field-size)))
 
