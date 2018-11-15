@@ -2,6 +2,7 @@
 
 (require net/ip/ip
          net/ip/network
+         racket/port
          racket/stream
          rackunit)
 
@@ -38,7 +39,30 @@
 
     (test-case "converts strings to ipv6 networks"
       (check-equal? (make-network "FFFF::/60")
-                    (network (string->ipv6-address "FFFF::") 60))))
+                    (network (string->ipv6-address "FFFF::") 60)))
+
+    (test-case "fils when network has host bits set"
+      (check-exn exn:fail:contract?
+                 (lambda ()
+                   (make-network "192.168.1.1/24"))))
+
+    (test-case "fails when given an invalid CIDR block"
+      (check-exn exn:fail:contract? (lambda () (make-network "")))))
+
+   (test-suite
+    "network"
+
+    (test-case "pretty-prints itself"
+      (check-equal?
+       (call-with-output-string
+         (lambda (out)
+           (print (make-network "192.168.1.0/24") out)))
+       "(make-network \"192.168.1.0/24\")"))
+
+    (test-case "fails when given an invalid prefix"
+      (check-exn exn:fail:contract?
+                 (lambda ()
+                   (network (make-ip-address "127.1") 128)))))
 
    (test-suite
     "network-address"

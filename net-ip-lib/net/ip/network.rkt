@@ -49,9 +49,6 @@
   #:transparent
   #:guard
   (lambda (address prefix name)
-    (unless (ip-address? address)
-      (raise-argument-error 'network "an ip-address" address))
-
     (unless (and (>= prefix 0)
                  (<= prefix (ip-address-size address)))
       (raise-argument-error 'network (format "a prefix value between 0 and ~a" (ip-address-size address)) prefix))

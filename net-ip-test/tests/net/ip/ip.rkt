@@ -40,6 +40,28 @@
       (check-equal? (make-ip-address "255.255.255.255") (string->ipv4-address "255.255.255.255"))))
 
    (test-suite
+    "ipv4-address?"
+
+    (test-case "#t when given an ipv4 addr"
+      (check-true (ipv4-address? (make-ip-address "127.1"))))
+
+    (test-case "#f when given an ipv6 addr"
+      (check-false (ipv4-address? (make-ip-address "::1")))))
+
+   (test-suite
+    "ip-address=?"
+
+    (test-case "#t when the addresses are the same"
+      (check-property
+        (property ([ip (choose-ipv4-address)])
+          (ip-address=? ip ip))))
+
+    (test-case "#f when the addresses are different"
+      (check-property
+        (property ([ip (choose-ipv4-address #:lo 1)])
+          (not (ip-address=? ip (ip-address-dec ip)))))))
+
+   (test-suite
     "ip-address<?"
 
     (test-case "#f when the addresses are the same"
@@ -50,12 +72,18 @@
     (test-case "#f when the first addr is larger than the second"
       (check-property
         (property ([ip (choose-ipv4-address #:lo 1)])
-          (not (ip-address<? ip (ip-address-dec ip)))))
+          (not (ip-address<? ip (ip-address-dec ip))))))
 
-      (test-case "#t when the first addr is smaller than the second"
-        (check-property
-          (property ([ip (choose-ipv4-address #:hi (- (expt 2 32) 2))])
-            (ip-address<? ip (ip-address-inc ip)))))))
+    (test-case "#t when the first addr is smaller than the second"
+      (check-property
+        (property ([ip (choose-ipv4-address #:hi (- (expt 2 32) 2))])
+          (ip-address<? ip (ip-address-inc ip)))))
+
+    (test-case "fails when the addresses are different versions"
+      (check-exn exn:fail:contract?
+                 (lambda ()
+                   (ip-address<? (make-ip-address "127.1")
+                                 (make-ip-address "::1"))))))
 
    (test-suite
     "ip-address<=?"
@@ -166,7 +194,11 @@
     (test-case "parses valid addresses"
       (check-equal? (bytes->ipv4-address #"\x00\x00\x00\x7F") (number->ipv4-address 127))
       (check-equal? (bytes->ipv4-address #"\x7F\x00\x00\x01") (string->ipv4-address "127.0.0.1"))
-      (check-equal? (bytes->ipv4-address #"\xFF\xFF\xFF\xFF") (string->ipv4-address "255.255.255.255"))))
+      (check-equal? (bytes->ipv4-address #"\xFF\xFF\xFF\xFF") (string->ipv4-address "255.255.255.255")))
+
+    (test-case "fails when given the wrong number of bytes"
+      (check-exn exn:fail:contract? (lambda () (bytes->ipv4-address #"")))
+      (check-exn exn:fail:contract? (lambda () (bytes->ipv4-address #"\xFF")))))
 
    (test-suite
     "ip-address->string"
@@ -217,6 +249,15 @@
       (check-equal? (make-ip-address "::") (string->ipv6-address "::"))
       (check-equal? (make-ip-address "::1") (string->ipv6-address "::1"))
       (check-equal? (make-ip-address "1:2::1") (string->ipv6-address "1:2:0:0:0:0:0:1"))))
+
+   (test-suite
+    "ipv6-address?"
+
+    (test-case "#t when given an ipv6 addr"
+      (check-true (ipv6-address? (make-ip-address "::1"))))
+
+    (test-case "#f when given an ipv4 addr"
+      (check-false (ipv6-address? (make-ip-address "127.1")))))
 
    (test-suite
     "ip-address<?"
@@ -344,7 +385,11 @@
 
     (test-case "parses valid addresses"
       (check-equal? (bytes->ipv6-address (make-bytes 16 0))   (number->ipv6-address 0))
-      (check-equal? (bytes->ipv6-address (make-bytes 16 255)) (string->ipv6-address "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF"))))
+      (check-equal? (bytes->ipv6-address (make-bytes 16 255)) (string->ipv6-address "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF")))
+
+    (test-case "fails when given the wrong number of bytes"
+      (check-exn exn:fail:contract? (lambda () (bytes->ipv6-address #"")))
+      (check-exn exn:fail:contract? (lambda () (bytes->ipv6-address #"\xFF")))))
 
    (test-suite
     "ip-address->string"
@@ -365,7 +410,8 @@
     (test-case "raises contract errors if given invalid addresses"
       (check-exn exn:fail:contract? (lambda () (string->ipv6-address "")))
       (check-exn exn:fail:contract? (lambda () (string->ipv6-address "::::")))
-      (check-exn exn:fail:contract? (lambda () (string->ipv6-address "FF::BB::1")))))))
+      (check-exn exn:fail:contract? (lambda () (string->ipv6-address "FF::BB::1")))
+      (check-exn exn:fail:contract? (lambda () (string->ipv6-address "AA:BB:CC:DD:EE:FF::00:11")))))))
 
 (module+ test
   (require rackunit/text-ui)

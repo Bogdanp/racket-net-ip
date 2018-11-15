@@ -89,9 +89,6 @@
   #:transparent
   #:guard
   (lambda (value version size name)
-    (unless (member version '(4 6))
-      (raise-argument-error 'ip-address "invalid version" version))
-
     (unless (and (>= value 0)
                  (<  value (expt 2 size)))
       (raise-argument-error 'ip-address (format "IPv~a addresses must be between 0 and 2^~a-1" version size) value))

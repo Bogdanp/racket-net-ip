@@ -196,7 +196,7 @@ These functions are specific to IPv6 addresses.
   Return @racket[#t] when @racket[addr] is an IPv6 address.
 }
 
-@defproc[(bytes->ipv6-address [bs bytes?]) ipv6-address?]{
+@defproc[(bytes->ipv6-address [ip bytes?]) ipv6-address?]{
   Unpack a byte array into an IPv6 address.  Must be exactly four
   bytes long and in big endian order, otherwise an
   @racket[exn:fail:contract?] is raised.
@@ -209,13 +209,13 @@ These functions are specific to IPv6 addresses.
 }
 
 @defproc[(string->ipv6-address [ip string?]) ipv6-address?]{
-  Parse an IPv6 address.  Includes support for compressed notation,
-  similar to what is available on most UNIX systems.
+  Parse an IPv6 address.
 
   @examples[
     (require net/ip)
     (string->ipv6-address "::1")
     (string->ipv6-address "ff:ab:cd::ff")
     (string->ipv6-address "201:db:ee::1")
+    (string->ipv6-address "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
   ]
 }
