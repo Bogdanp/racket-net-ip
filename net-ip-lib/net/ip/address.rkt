@@ -69,7 +69,7 @@
 
   (ip-address value version (* field-count field-size)))
 
-(define (ip-address-fields addr field-count field-size)
+(define (ip-address->fields addr field-count field-size)
   (define e (expt 2 field-size))
   (let loop ([n (ip-address-value addr)]
              [s '()])
@@ -119,8 +119,8 @@
 
 (define (ip-address->bytes addr)
   (apply bytes (match (ip-address-version addr)
-                 [4 (ip-address-fields addr 4  8)]
-                 [6 (ip-address-fields addr 16 8)])))
+                 [4 (ip-address->fields addr 4  8)]
+                 [6 (ip-address->fields addr 16 8)])))
 
 (define (ip-address->number addr)
   (ip-address-value addr))
@@ -162,7 +162,7 @@
     [_ (raise-argument-error 'string->ipv4-address "4 decimal octets separated by dots" ip)]))
 
 (define (ipv4-address->string addr)
-  (string-join (map number->string (ip-address-fields addr 4 8)) "."))
+  (string-join (map number->string (ip-address->fields addr 4 8)) "."))
 
 (define (ipv4-octet? n)
   (and (>= n 0)
@@ -219,7 +219,7 @@
   (or (string->number f 16) 0))
 
 (define (ipv6-address->string addr)
-  (string-join (map number->ipv6-field (ip-address-fields addr 8 16)) ":"))
+  (string-join (map number->ipv6-field (ip-address->fields addr 8 16)) ":"))
 
 (define (number->ipv6-field f)
   (number->string f 16))
