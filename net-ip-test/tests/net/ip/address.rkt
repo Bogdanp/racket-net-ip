@@ -37,7 +37,11 @@
       (check-equal? (make-ip-address #"\x7F\xFF\xFF\x00") (string->ipv4-address "127.255.255.0")))
 
     (test-case "converts strings to ipv4"
-      (check-equal? (make-ip-address "255.255.255.255") (string->ipv4-address "255.255.255.255"))))
+      (check-equal? (make-ip-address "255.255.255.255") (string->ipv4-address "255.255.255.255")))
+
+    (test-case "fails on other kinds of arguments"
+      (check-exn exn:fail:contract? (lambda () (make-ip-address #"")))
+      (check-exn exn:fail:contract? (lambda () (make-ip-address #"\x00\x00\x00\x00\x00")))))
 
    (test-suite
     "ipv4-address?"

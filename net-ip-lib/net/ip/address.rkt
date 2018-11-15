@@ -9,7 +9,7 @@
 (provide (contract-out
           [make-ip-address (case->
                             (-> exact-nonnegative-integer? (or/c 4 6) ip-address?)
-                            (-> (or/c string? bytes?) ip-address?))]
+                            (-> (or/c string? (bytes-len/c 4) (bytes-len/c 16)) ip-address?))]
 
           [ip-address? (-> any/c boolean?)]
           [ip-address=? (-> ip-address? ip-address? boolean?)]
