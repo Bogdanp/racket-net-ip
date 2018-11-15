@@ -2,10 +2,6 @@
 
 Utilities for working with IP addresses in Racket.
 
-## TODOs
-
-* [ ] IPv6 support.
-
 ## Documentation
 
 The documentation is hosted on [docs.racket-lang.org][docs].
