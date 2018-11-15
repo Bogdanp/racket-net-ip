@@ -1,8 +1,8 @@
 #lang racket/base
 
 (require rackunit
+         "ip/address.rkt"
          "ip/common.rkt"
-         "ip/ip.rkt"
          "ip/network.rkt")
 
 (define all-ip-tests

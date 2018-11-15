@@ -1,6 +1,6 @@
 #lang racket/base
 
-(require net/ip/ip
+(require net/ip/address
          net/ip/network
          racket/port
          racket/stream

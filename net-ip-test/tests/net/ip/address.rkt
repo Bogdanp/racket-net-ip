@@ -1,6 +1,6 @@
 #lang racket/base
 
-(require net/ip/ip
+(require net/ip/address
          quickcheck
          quickcheck/generator
          racket/stream

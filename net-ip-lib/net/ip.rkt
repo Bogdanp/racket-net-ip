@@ -2,8 +2,8 @@
 
 (require racket/contract/base
          racket/match
-         "ip/ip.rkt"
+         "ip/address.rkt"
          "ip/network.rkt")
 
-(provide (all-from-out "ip/ip.rkt")
+(provide (all-from-out "ip/address.rkt")
          (all-from-out "ip/network.rkt"))

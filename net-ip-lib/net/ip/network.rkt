@@ -6,7 +6,7 @@
          racket/stream
          racket/string
          racket/struct
-         "ip.rkt")
+         "address.rkt")
 
 (provide (contract-out
           [make-network (case->
