@@ -59,22 +59,14 @@
 
 (define (fields->ip-address fields
                             #:version version
-                            #:field-count-override [field-count-override #f]
-                            #:field-size-override [field-size-override #f])
-  (define-values (field-count field-size)
-    (ip-address-version-properties version))
-
+                            #:field-count [field-count (or (and (= version 4) 4) 8)]
+                            #:field-size  [field-size  (or (and (= version 4) 8) 16)])
   (define value (for/fold ([v 0])
                           ([f fields]
-                           [e (in-range (sub1 (or field-count-override field-count)) -1 -1)])
-                  (+ v (* f (expt (expt 2 (or field-size-override field-size)) e)))))
+                           [e (in-range (sub1 field-count) -1 -1)])
+                  (+ v (* f (expt (expt 2 field-size) e)))))
 
   (ip-address value version (* field-count field-size)))
-
-(define (ip-address-version-properties version)
-  (match version
-    [4 (values 4 8)]
-    [6 (values 8 16)]))
 
 (define (ip-address-fields addr field-count field-size)
   (define e (expt 2 field-size))
@@ -190,8 +182,8 @@
 
   (fields->ip-address ip
                       #:version 6
-                      #:field-count-override 16
-                      #:field-size-override 8))
+                      #:field-count 16
+                      #:field-size 8))
 
 (define (number->ipv6-address value)
   (ip-address value 6 128))
