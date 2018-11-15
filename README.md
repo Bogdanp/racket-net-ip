@@ -9,3 +9,6 @@ The documentation is hosted on [docs.racket-lang.org][docs].
 ## License
 
     net-ip is licensed under the 3-Clause BSD license.
+
+
+[docs]: http://docs.racket-lang.org/net-ip/index.html
