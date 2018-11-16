@@ -66,13 +66,25 @@ All IP addresses and network versions support the operations that follow.
   versions.
 }
 
-@defproc[(ip-address-dec [addr ip-address?] [n exact-integer? 1]) ip-address?]{
+@defproc[(ip-address-bitcount [addr ip-address?]) exact-nonnegative-integer?]{
+  Count the number of set high bits in @racket[addr].
+
+  @examples[
+    (require net/ip)
+    (ip-address-bitcount (make-ip-address "0.0.0.0"))
+    (ip-address-bitcount (make-ip-address "255.255.255.0"))
+    (ip-address-bitcount (make-ip-address "255.255.255.255"))
+    (ip-address-bitcount (make-ip-address "ffff::"))
+  ]
+}
+
+@defproc[(ip-address-dec [addr ip-address?] [n exact-nonnegative-integer? 1]) ip-address?]{
   Return an @racket[ip-address?] smaller than @racket[addr] by @racket[n].
   Raises @racket[exn:fail:contract?] if the resulting address would be
   smaller than @racket[0].
 }
 
-@defproc[(ip-address-inc [addr ip-address?] [n exact-integer? 1]) ip-address?]{
+@defproc[(ip-address-inc [addr ip-address?] [n exact-nonnegative-integer? 1]) ip-address?]{
   Return an @racket[ip-address?] greater than @racket[addr] by @racket[n].
   Raises @racket[exn:fail:contract?] if the resulting address would be
   greater than the maximum address for that particular version.

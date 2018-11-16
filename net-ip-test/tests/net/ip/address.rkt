@@ -44,6 +44,16 @@
       (check-exn exn:fail:contract? (lambda () (make-ip-address #"\x00\x00\x00\x00\x00")))))
 
    (test-suite
+    "ip-address-bitcount"
+
+    (test-case "counts high bits in addresses"
+      (check-eq? (ip-address-bitcount (make-ip-address "0")) 0)
+      (check-eq? (ip-address-bitcount (make-ip-address "255.255.255.0")) 24)
+      (check-eq? (ip-address-bitcount (make-ip-address "255.255.255.32")) 24)
+      (check-eq? (ip-address-bitcount (make-ip-address "255.255.255.128")) 25)
+      (check-eq? (ip-address-bitcount (make-ip-address "255.0.0.0")) 8)))
+
+   (test-suite
     "ipv4-address?"
 
     (test-case "#t when given an ipv4 addr"

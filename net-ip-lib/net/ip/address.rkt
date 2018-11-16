@@ -17,6 +17,7 @@
           [ip-address>? (-> ip-address? ip-address? boolean?)]
           [ip-address<=? (-> ip-address? ip-address? boolean?)]
           [ip-address>=? (-> ip-address? ip-address? boolean?)]
+          [ip-address-bitcount (-> ip-address? exact-nonnegative-integer?)]
           [ip-address-size (-> ip-address? (or/c 32 128))]
           [ip-address-version (-> ip-address? (or/c 4 6))]
           [ip-address-dec (->* (ip-address?) (exact-integer?) ip-address?)]
@@ -110,6 +111,9 @@
 (define/comparison ip-address>? >)
 (define/comparison ip-address<=? <=)
 (define/comparison ip-address>=? >=)
+
+(define (ip-address-bitcount addr)
+  (bitcount (ip-address-value addr)))
 
 (define (ip-address-dec addr [n 1])
   (struct-copy ip-address addr [value (- (ip-address-value addr) n)]))

@@ -7,7 +7,8 @@
          bytes-len/c
          repeat)
 
-(define (bitcount n [size (sub1 (exact-ceiling (log n 2)))])
+(define (bitcount n [size (or (and (= 0 n) 0)
+                              (sub1 (exact-ceiling (log n 2))))])
   (for/fold ([c 0])
             ([i (in-range size -1 -1)])
     #:break (not (bitwise-bit-set? n i))
