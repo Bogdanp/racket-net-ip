@@ -185,8 +185,8 @@ These functions are specific to IPv4 addresses.
 }
 
 @defproc[(bytes->ipv4-address [bs bytes?]) ipv4-address?]{
-  Unpack a byte array into an IPv4 address.  Must be exactly four
-  bytes long and in big endian order, otherwise an
+  Unpack a byte array in network order (big endian) into an IPv4
+  address.  Must be exactly four bytes long,otherwise an
   @racket[exn:fail:contract?] is raised.
 }
 
@@ -220,8 +220,8 @@ These functions are specific to IPv6 addresses.
 }
 
 @defproc[(bytes->ipv6-address [ip bytes?]) ipv6-address?]{
-  Unpack a byte array into an IPv6 address.  Must be exactly four
-  bytes long and in big endian order, otherwise an
+  Unpack a byte array in network order (big endian) into an IPv6
+  address.  Must be exactly sixteen bytes long, otherwise an
   @racket[exn:fail:contract?] is raised.
 }
 
