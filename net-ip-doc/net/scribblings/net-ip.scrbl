@@ -23,29 +23,40 @@ All IP addresses and network versions support the operations that follow.
               @defproc[#:link-target? #f (make-ip-address [ip exact-nonnegative-integer?] [version (or/c 4 16)]) ip-address?])]{
   Parse an IP address.
 
-  @examples[
+  @examples[#:label "IPv4 examples:"
     (require net/ip)
     (make-ip-address "127.0.0.1")
     (make-ip-address #"\x7F\x00\x00\x01")
     (make-ip-address 127 4)
+  ]
+
+  @examples[#:label "IPv6 examples:"
+    (require net/ip)
     (make-ip-address "::1")
     (make-ip-address #"\xFF\xFF\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
     (make-ip-address "2001:db8::1")
   ]
 }
 
-@deftogether[(@defproc[(make-network [ip string?] [prefix exact-nonnegative-integer?]) network?]
-              @defproc[#:link-target? #f (make-network [ip ip-address?] [prefix exact-nonnegative-integer?]) network?]
+@deftogether[(@defproc[(make-network [ip (or/c ip-address? string?)] [prefix exact-nonnegative-integer?]) network?]
+              @defproc[#:link-target? #f (make-network [ip (or/c ip-address? string?)] [mask (or/c ip-address? string?)]) network?]
               @defproc[#:link-target? #f (make-network [cidr string?]) network?])]{
   Parse a network.
 
-  @examples[
+  @examples[#:label "IPv4 examples:"
     (require net/ip)
-    (make-network "127.0.0.0/24")
-    (make-network "127.0.0.0" 24)
-    (make-network (make-ip-address "127.0.0.0") 24)
+    (make-network "192.168.1.0/24")
+    (make-network "192.168.1.0" 24)
+    (make-network "192.168.1.0" "255.255.255.0")
+    (make-network (make-ip-address "192.168.1.0") 24)
+
+  ]
+
+  @examples[#:label "IPv6 examples:"
+    (require net/ip)
     (make-network "::1/128")
     (make-network "::1" 128)
+    (make-network "::1" "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
     (make-network (make-ip-address "::1") 128)
   ]
 }

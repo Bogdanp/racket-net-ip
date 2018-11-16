@@ -10,7 +10,9 @@
 
 (provide (contract-out
           [make-network (case->
-                         (-> (or/c ip-address? string?) exact-nonnegative-integer? network?)
+                         (-> (or/c ip-address? string?)
+                             (or/c ip-address? string? exact-nonnegative-integer?)
+                             network?)
                          (-> string? network?))]
 
           [network? (-> any/c boolean?)]
@@ -29,6 +31,12 @@
 
 (define make-network
   (match-lambda*
+    [(list ip (and (? ip-address?) (var mask)))
+     (make-network ip (ip-address-bitcount mask))]
+
+    [(list ip (and (? string?) (var mask)))
+     (make-network ip (ip-address-bitcount (make-ip-address mask)))]
+
     [(list (and (? ip-address?) (var ip))
            (and (? exact-nonnegative-integer?) (var prefix)))
      (network ip prefix)]

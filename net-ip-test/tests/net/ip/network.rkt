@@ -15,6 +15,24 @@
    (test-suite
     "make-network"
 
+    (test-case "convertes ipv4 addresses with ipv4 masks to ipv4 networks"
+      (check-equal? (make-network (string->ipv4-address "192.168.1.0")
+                                  (string->ipv4-address "255.255.255.0"))
+                    (network (string->ipv4-address "192.168.1.0") 24)))
+
+    (test-case "convertes ipv6 addresses with ipv6 masks to ipv4 networks"
+      (check-equal? (make-network (string->ipv6-address "201:db8::")
+                                  (string->ipv6-address "ffff:ffff:ffff::"))
+                    (network (string->ipv6-address "201:db8::") 48)))
+
+    (test-case "convertes ipv4 addresses with string masks to ipv4 networks"
+      (check-equal? (make-network (string->ipv4-address "192.168.1.0") "255.255.255.0")
+                    (network (string->ipv4-address "192.168.1.0") 24)))
+
+    (test-case "convertes ipv6 addresses with string masks to ipv4 networks"
+      (check-equal? (make-network (string->ipv6-address "201:db8::") "ffff:ffff:ffff::")
+                    (network (string->ipv6-address "201:db8::") 48)))
+
     (test-case "converts ipv4 addresses with prefixes to ipv4 networks"
       (check-equal? (make-network (string->ipv4-address "127.0.0.0") 24)
                     (network (string->ipv4-address "127.0.0.0") 24)))
