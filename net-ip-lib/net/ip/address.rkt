@@ -6,62 +6,63 @@
          racket/struct
          "common.rkt")
 
-(provide (contract-out
-          [make-ip-address (case->
-                            (-> exact-nonnegative-integer? (or/c 4 6) ip-address?)
-                            (-> (or/c string? (bytes-len/c 4) (bytes-len/c 16)) ip-address?))]
+(provide
+ (contract-out
+  [make-ip-address (case->
+                    (-> exact-nonnegative-integer? (or/c 4 6) ip-address?)
+                    (-> (or/c string? (bytes-len/c 4) (bytes-len/c 16)) ip-address?))]
 
-          [ip-address? (-> any/c boolean?)]
-          [ip-address=? (-> ip-address? ip-address? boolean?)]
-          [ip-address<? (-> ip-address? ip-address? boolean?)]
-          [ip-address>? (-> ip-address? ip-address? boolean?)]
-          [ip-address<=? (-> ip-address? ip-address? boolean?)]
-          [ip-address>=? (-> ip-address? ip-address? boolean?)]
-          [ip-address-bitcount (-> ip-address? exact-nonnegative-integer?)]
-          [ip-address-size (-> ip-address? (or/c 32 128))]
-          [ip-address-version (-> ip-address? (or/c 4 6))]
-          [ip-address-dec (->* (ip-address?) (exact-integer?) ip-address?)]
-          [ip-address-inc (->* (ip-address?) (exact-integer?) ip-address?)]
-          [ip-address->bytes (-> ip-address? bytes?)]
-          [ip-address->number (-> ip-address? exact-nonnegative-integer?)]
-          [ip-address->string (-> ip-address? string?)]
+  [ip-address? (-> any/c boolean?)]
+  [ip-address=? (-> ip-address? ip-address? boolean?)]
+  [ip-address<? (-> ip-address? ip-address? boolean?)]
+  [ip-address>? (-> ip-address? ip-address? boolean?)]
+  [ip-address<=? (-> ip-address? ip-address? boolean?)]
+  [ip-address>=? (-> ip-address? ip-address? boolean?)]
+  [ip-address-bitcount (-> ip-address? exact-nonnegative-integer?)]
+  [ip-address-size (-> ip-address? (or/c 32 128))]
+  [ip-address-version (-> ip-address? (or/c 4 6))]
+  [ip-address-dec (->* (ip-address?) (exact-integer?) ip-address?)]
+  [ip-address-inc (->* (ip-address?) (exact-integer?) ip-address?)]
+  [ip-address->bytes (-> ip-address? bytes?)]
+  [ip-address->number (-> ip-address? exact-nonnegative-integer?)]
+  [ip-address->string (-> ip-address? string?)]
 
-          [ipv4-address? (-> ip-address? boolean?)]
-          [bytes->ipv4-address (-> bytes? ip-address?)]
-          [number->ipv4-address (-> exact-nonnegative-integer? ip-address?)]
-          [string->ipv4-address (-> string? ip-address?)]
+  [ipv4-address? (-> ip-address? boolean?)]
+  [bytes->ipv4-address (-> bytes? ip-address?)]
+  [number->ipv4-address (-> exact-nonnegative-integer? ip-address?)]
+  [string->ipv4-address (-> string? ip-address?)]
 
-          [ipv6-address? (-> ip-address? boolean?)]
-          [bytes->ipv6-address (-> bytes? ip-address?)]
-          [number->ipv6-address (-> exact-nonnegative-integer? ip-address?)]
-          [string->ipv6-address (-> string? ip-address?)]))
+  [ipv6-address? (-> ip-address? boolean?)]
+  [bytes->ipv6-address (-> bytes? ip-address?)]
+  [number->ipv6-address (-> exact-nonnegative-integer? ip-address?)]
+  [string->ipv6-address (-> string? ip-address?)]))
 
 
 ;; Generic IP addresses ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define make-ip-address
   (match-lambda*
-    [(list (and (? exact-nonnegative-integer?) (var ip)) 4)
+    [(list (and (? exact-nonnegative-integer?) ip) 4)
      (number->ipv4-address ip)]
 
-    [(list (and (? exact-nonnegative-integer?) (var ip)) 6)
+    [(list (and (? exact-nonnegative-integer?) ip) 6)
      (number->ipv6-address ip)]
 
-    [(list (and (? ipv4-address-bytes?) (var ip)))
+    [(list (and (? ipv4-address-bytes?) ip))
      (bytes->ipv4-address ip)]
 
-    [(list (and (? ipv6-address-bytes?) (var ip)))
+    [(list (and (? ipv6-address-bytes?) ip))
      (bytes->ipv6-address ip)]
 
-    [(list (and (? string?) (var ip)))
+    [(list (and (? string?) ip))
      (if (string-contains? ip ":")
          (string->ipv6-address ip)
          (string->ipv4-address ip))]))
 
 (define (fields->ip-address fields
                             #:version version
-                            #:field-count [field-count (or (and (= version 4) 4) 8)]
-                            #:field-size  [field-size  (or (and (= version 4) 8) 16)])
+                            #:field-count [field-count (if (= version 4) 4 8)]
+                            #:field-size  [field-size  (if (= version 4) 8 16)])
   (define value
     (for/fold ([v 0])
               ([f fields]
@@ -195,7 +196,7 @@
 
 (define (string->ipv6-address ip)
   (match (string-split ip "::" #:trim? #f)
-    [(list (and (app string->ipv6-fields fields)))
+    [(list (app string->ipv6-fields fields))
 
      (unless (= (length fields) 8)
        (raise-argument-error 'string->ipv6-adress "8 16-bit fields separated by colons" ip))

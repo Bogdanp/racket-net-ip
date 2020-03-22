@@ -3,9 +3,10 @@
 (require racket/contract/base
          racket/math)
 
-(provide bitcount
-         bytes-len/c
-         repeat)
+(provide
+ bitcount
+ bytes-len/c
+ repeat)
 
 (define (bitcount n [size (or (and (= 0 n) 0)
                               (sub1 (exact-ceiling (log n 2))))])
