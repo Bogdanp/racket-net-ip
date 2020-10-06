@@ -92,6 +92,15 @@
                     (string->ipv6-address "FFFF::0"))))
 
    (test-suite
+    "network-last-address"
+
+    (test-case "returns the last address in a network"
+      (check-equal? (network-last-address (make-network "127.0.0.0/24"))
+                    (string->ipv4-address "127.0.0.255"))
+      (check-equal? (network-last-address (make-network "FFFF::0/60"))
+                    (string->ipv6-address "FFFF::F:FFFF:FFFF:FFFF:FFFF"))))
+
+   (test-suite
     "network-hostmask"
 
     (test-case "returns a network's host mask"
