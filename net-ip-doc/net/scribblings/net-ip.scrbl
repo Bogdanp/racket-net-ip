@@ -140,6 +140,10 @@ All IP addresses and network versions support the operations that follow.
   Return the network address for @racket[net].
 }
 
+@defproc[(network-last-address [net network?]) ip-address?]{
+  Return the last ip address in @racket[net].
+}
+
 @defproc[(network-prefix [net network?]) exact-nonnegative-integer?]{
   Return the prefix for @racket[net].
 }
