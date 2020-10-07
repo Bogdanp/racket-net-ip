@@ -1,0 +1,21 @@
+on: [push, pull_request]
+name: CI/CD
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Install Racket
+      uses: Bogdanp/setup-racket@master
+      with:
+        variant: CS
+        version: "7.8"
+
+    - name: Install pkg and deps
+      run: raco pkg install --batch --auto net-ip-lib/ net-ip-doc/ net-ip-test/ net-ip/
+
+    - name: Run tests
+      run: raco test -j 4 net-ip-test/
