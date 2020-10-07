@@ -19,6 +19,7 @@
   [network? (-> any/c boolean?)]
   [network (-> ip-address? exact-nonnegative-integer? network?)]
   [network-address (-> network? ip-address?)]
+  [network-last-address (-> network? ip-address?)]
   [network-prefix (-> network? exact-nonnegative-integer?)]
   [network-hostmask (-> network? ip-address?)]
   [network-netmask (-> network? ip-address?)]
@@ -75,6 +76,11 @@
      (make-constructor-style-printer
       (lambda (net) 'make-network)
       (lambda (net) (list (network->string net)))))])
+
+(define (network-last-address net)
+  (make-ip-address (+ (sub1 (network-size net))
+                      (ip-address->number (network-address net)))
+                   (ip-address-version (network-address net))))
 
 (define (network-hostmask net)
   (make-ip-address (sub1 (network-size net))
