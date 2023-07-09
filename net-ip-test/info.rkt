@@ -5,6 +5,6 @@
 (define deps '())
 (define build-deps '("base"
                      "net-ip-lib"
-                     "quickcheck"
+                     ["rackcheck-lib" #:version "2.1"]
                      "rackunit-lib"))
 (define update-implies '("net-ip-lib"))

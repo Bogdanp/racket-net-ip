@@ -1,21 +1,19 @@
 #lang racket/base
 
 (require net/ip/address
-         quickcheck
-         quickcheck/generator
-         racket/stream
-         rackunit
-         rackunit/quickcheck)
+         rackcheck
+         rackunit)
 
 (provide ip-tests)
 
-(define (choose-ipv4-address #:lo [lo 0]
-                             #:hi [hi (sub1 (expt 2 32))])
-  (lift->generator number->ipv4-address (choose-integer lo hi)))
+(define (gen:ipv4-address #:lo [lo 0]
+                          #:hi [hi (sub1 (expt 2 32))])
+  (gen:map (gen:integer-in lo hi) number->ipv4-address))
 
-(define (choose-ipv6-address #:lo [lo 0]
-                             #:hi [hi (sub1 (expt 2 128))])
-  (lift->generator number->ipv6-address (choose-integer lo hi)))
+(define (gen:ipv6-address #:lo [lo 0]
+                          #:hi [hi (sub1 (expt 2 128))])
+  (gen:map (gen:integer-in lo hi) number->ipv6-address))
+
 
 (define ip-tests
   (test-suite
@@ -67,12 +65,12 @@
 
     (test-case "#t when the addresses are the same"
       (check-property
-        (property ([ip (choose-ipv4-address)])
+        (property ([ip (gen:ipv4-address)])
           (ip-address=? ip ip))))
 
     (test-case "#f when the addresses are different"
       (check-property
-        (property ([ip (choose-ipv4-address #:lo 1)])
+        (property ([ip (gen:ipv4-address #:lo 1)])
           (not (ip-address=? ip (ip-address-dec ip)))))))
 
    (test-suite
@@ -80,17 +78,17 @@
 
     (test-case "#f when the addresses are the same"
       (check-property
-        (property ([ip (choose-ipv4-address)])
+        (property ([ip (gen:ipv4-address)])
           (not (ip-address<? ip ip)))))
 
     (test-case "#f when the first addr is larger than the second"
       (check-property
-        (property ([ip (choose-ipv4-address #:lo 1)])
+        (property ([ip (gen:ipv4-address #:lo 1)])
           (not (ip-address<? ip (ip-address-dec ip))))))
 
     (test-case "#t when the first addr is smaller than the second"
       (check-property
-        (property ([ip (choose-ipv4-address #:hi (- (expt 2 32) 2))])
+        (property ([ip (gen:ipv4-address #:hi (- (expt 2 32) 2))])
           (ip-address<? ip (ip-address-inc ip)))))
 
     (test-case "fails when the addresses are different versions"
@@ -104,17 +102,17 @@
 
     (test-case "#t when the addresses are the same"
       (check-property
-        (property ([ip (choose-ipv4-address)])
+        (property ([ip (gen:ipv4-address)])
           (ip-address<=? ip ip))))
 
     (test-case "#f when the first addr is larger than the second"
       (check-property
-        (property ([ip (choose-ipv4-address #:lo 1)])
+        (property ([ip (gen:ipv4-address #:lo 1)])
           (not (ip-address<=? ip (ip-address-dec ip))))))
 
     (test-case "#t when the first addr is smaller than the second"
       (check-property
-        (property ([ip (choose-ipv4-address #:hi (- (expt 2 32) 2))])
+        (property ([ip (gen:ipv4-address #:hi (- (expt 2 32) 2))])
           (ip-address<=? ip (ip-address-inc ip))))))
 
    (test-suite
@@ -122,17 +120,17 @@
 
     (test-case "#f when the addresses are the same"
       (check-property
-        (property ([ip (choose-ipv4-address)])
+        (property ([ip (gen:ipv4-address)])
           (not (ip-address>? ip ip)))))
 
     (test-case "#t when the first addr is larger than the second"
       (check-property
-        (property ([ip (choose-ipv4-address #:lo 1)])
+        (property ([ip (gen:ipv4-address #:lo 1)])
           (ip-address>? ip (ip-address-dec ip)))))
 
     (test-case "#f when the first addr is smaller than the second"
       (check-property
-        (property ([ip (choose-ipv4-address #:hi (- (expt 2 32) 2))])
+        (property ([ip (gen:ipv4-address #:hi (- (expt 2 32) 2))])
           (not (ip-address>? ip (ip-address-inc ip)))))))
 
    (test-suite
@@ -140,17 +138,17 @@
 
     (test-case "#t when the addresses are the same"
       (check-property
-        (property ([ip (choose-ipv4-address)])
+        (property ([ip (gen:ipv4-address)])
           (ip-address>=? ip ip))))
 
     (test-case "#t when the first addr is larger than the second"
       (check-property
-        (property ([ip (choose-ipv4-address #:lo 1)])
+        (property ([ip (gen:ipv4-address #:lo 1)])
           (ip-address>=? ip (ip-address-dec ip)))))
 
     (test-case "#f when the first addr is smaller than the second"
       (check-property
-        (property ([ip (choose-ipv4-address #:hi (- (expt 2 32) 2))])
+        (property ([ip (gen:ipv4-address #:hi (- (expt 2 32) 2))])
           (not (ip-address>=? ip (ip-address-inc ip)))))))
 
    (test-suite
@@ -158,7 +156,7 @@
 
     (test-case "decrements ip addresses"
       (check-property
-        (property ([addr (choose-ipv4-address #:lo 1)])
+        (property ([addr (gen:ipv4-address #:lo 1)])
           (= (ip-address->number (ip-address-dec addr))
              (sub1 (ip-address->number addr))))))
 
@@ -170,7 +168,7 @@
 
     (test-case "increments ip addresses"
       (check-property
-        (property ([addr (choose-ipv4-address #:hi (- (expt 2 32) 2))])
+        (property ([addr (gen:ipv4-address #:hi (- (expt 2 32) 2))])
           (= (ip-address->number (ip-address-inc addr))
              (add1 (ip-address->number addr))))))
 
@@ -182,7 +180,7 @@
 
     (test-case "always returns 32"
       (check-property
-        (property ([addr (choose-ipv4-address)])
+        (property ([addr (gen:ipv4-address)])
           (= (ip-address-size addr) 32)))))
 
    (test-suite
@@ -190,7 +188,7 @@
 
     (test-case "always returns 4"
       (check-property
-        (property ([addr (choose-ipv4-address)])
+        (property ([addr (gen:ipv4-address)])
           (= (ip-address-version addr) 4)))))
 
    (test-suite
@@ -278,17 +276,17 @@
 
     (test-case "#f when the addresses are the same"
       (check-property
-        (property ([ip (choose-ipv6-address)])
+        (property ([ip (gen:ipv6-address)])
           (not (ip-address<? ip ip)))))
 
     (test-case "#f when the first addr is larger than the second"
       (check-property
-        (property ([ip (choose-ipv6-address #:lo 1)])
+        (property ([ip (gen:ipv6-address #:lo 1)])
           (not (ip-address<? ip (ip-address-dec ip)))))
 
       (test-case "#t when the first addr is smaller than the second"
         (check-property
-          (property ([ip (choose-ipv6-address #:hi (- (expt 2 32) 2))])
+          (property ([ip (gen:ipv6-address #:hi (- (expt 2 32) 2))])
             (ip-address<? ip (ip-address-inc ip)))))))
 
    (test-suite
@@ -296,17 +294,17 @@
 
     (test-case "#t when the addresses are the same"
       (check-property
-        (property ([ip (choose-ipv6-address)])
+        (property ([ip (gen:ipv6-address)])
           (ip-address<=? ip ip))))
 
     (test-case "#f when the first addr is larger than the second"
       (check-property
-        (property ([ip (choose-ipv6-address #:lo 1)])
+        (property ([ip (gen:ipv6-address #:lo 1)])
           (not (ip-address<=? ip (ip-address-dec ip))))))
 
     (test-case "#t when the first addr is smaller than the second"
       (check-property
-        (property ([ip (choose-ipv6-address #:hi (- (expt 2 32) 2))])
+        (property ([ip (gen:ipv6-address #:hi (- (expt 2 32) 2))])
           (ip-address<=? ip (ip-address-inc ip))))))
 
    (test-suite
@@ -314,17 +312,17 @@
 
     (test-case "#f when the addresses are the same"
       (check-property
-        (property ([ip (choose-ipv6-address)])
+        (property ([ip (gen:ipv6-address)])
           (not (ip-address>? ip ip)))))
 
     (test-case "#t when the first addr is larger than the second"
       (check-property
-        (property ([ip (choose-ipv6-address #:lo 1)])
+        (property ([ip (gen:ipv6-address #:lo 1)])
           (ip-address>? ip (ip-address-dec ip)))))
 
     (test-case "#f when the first addr is smaller than the second"
       (check-property
-        (property ([ip (choose-ipv6-address #:hi (- (expt 2 32) 2))])
+        (property ([ip (gen:ipv6-address #:hi (- (expt 2 32) 2))])
           (not (ip-address>? ip (ip-address-inc ip)))))))
 
    (test-suite
@@ -332,17 +330,17 @@
 
     (test-case "#t when the addresses are the same"
       (check-property
-        (property ([ip (choose-ipv6-address)])
+        (property ([ip (gen:ipv6-address)])
           (ip-address>=? ip ip))))
 
     (test-case "#t when the first addr is larger than the second"
       (check-property
-        (property ([ip (choose-ipv6-address #:lo 1)])
+        (property ([ip (gen:ipv6-address #:lo 1)])
           (ip-address>=? ip (ip-address-dec ip)))))
 
     (test-case "#f when the first addr is smaller than the second"
       (check-property
-        (property ([ip (choose-ipv6-address #:hi (- (expt 2 32) 2))])
+        (property ([ip (gen:ipv6-address #:hi (- (expt 2 32) 2))])
           (not (ip-address>=? ip (ip-address-inc ip)))))))
 
    (test-suite
@@ -350,7 +348,7 @@
 
     (test-case "decrements ip addresses"
       (check-property
-        (property ([addr (choose-ipv6-address #:lo 1)])
+        (property ([addr (gen:ipv6-address #:lo 1)])
           (= (ip-address->number (ip-address-dec addr))
              (sub1 (ip-address->number addr))))))
 
@@ -362,7 +360,7 @@
 
     (test-case "increments ip addresses"
       (check-property
-        (property ([addr (choose-ipv6-address #:hi (- (expt 2 32) 2))])
+        (property ([addr (gen:ipv6-address #:hi (- (expt 2 32) 2))])
           (= (ip-address->number (ip-address-inc addr))
              (add1 (ip-address->number addr))))))
 
@@ -374,7 +372,7 @@
 
     (test-case "always returns 128"
       (check-property
-        (property ([addr (choose-ipv6-address)])
+        (property ([addr (gen:ipv6-address)])
           (= (ip-address-size addr) 128)))))
 
    (test-suite
@@ -382,7 +380,7 @@
 
     (test-case "always returns 6"
       (check-property
-        (property ([addr (choose-ipv6-address)])
+        (property ([addr (gen:ipv6-address)])
           (= (ip-address-version addr) 6)))))
 
    (test-suite
