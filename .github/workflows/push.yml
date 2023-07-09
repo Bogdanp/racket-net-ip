@@ -12,7 +12,7 @@ jobs:
       uses: Bogdanp/setup-racket@master
       with:
         variant: CS
-        version: "7.8"
+        version: "8.9"
 
     - name: Install pkg and deps
       run: raco pkg install --batch --auto net-ip-lib/ net-ip-doc/ net-ip-test/ net-ip/
