@@ -125,6 +125,15 @@
                     (string->ipv6-address "FFFF:FF00::"))))
 
    (test-suite
+    "network-broadcast-address"
+
+    (test-case "returns a network's broadcast addr"
+      (check-equal? (network-broadcast-address (make-network "10.0.1.0/24"))
+                    (string->ipv4-address "10.0.1.255"))
+      (check-equal? (network-broadcast-address (make-network "10.0.0.0/16"))
+                    (string->ipv4-address "10.0.255.255"))))
+
+   (test-suite
     "network-size"
 
     (test-case "returns the size of the network"

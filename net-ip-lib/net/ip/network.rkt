@@ -21,6 +21,7 @@
   [network-address (-> network? ip-address?)]
   [network-last-address (-> network? ip-address?)]
   [network-prefix (-> network? exact-nonnegative-integer?)]
+  [network-broadcast-address (-> network? ip-address?)]
   [network-hostmask (-> network? ip-address?)]
   [network-netmask (-> network? ip-address?)]
   [network-size (-> network? exact-nonnegative-integer?)]
@@ -81,6 +82,17 @@
   (make-ip-address (+ (sub1 (network-size net))
                       (ip-address->number (network-address net)))
                    (ip-address-version (network-address net))))
+
+(define (network-broadcast-address net)
+  (define netaddr
+    (network-address net))
+  (make-ip-address
+   (bitwise-ior
+    (ip-address->number netaddr)
+    (bitwise-xor
+     (sub1 (expt 2 (ip-address-size netaddr)))
+     (ip-address->number (network-netmask net))))
+   (ip-address-version netaddr)))
 
 (define (network-hostmask net)
   (make-ip-address (sub1 (network-size net))

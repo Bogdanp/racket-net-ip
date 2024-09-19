@@ -156,6 +156,12 @@ All IP addresses and network versions support the operations that follow.
   Return the net mask for @racket[net].
 }
 
+@defproc[(network-broadcast-address [net network?]) ip-address?]{
+  Return the broadcast address for @racket[net].
+
+  @history[#:added "0.2"]
+}
+
 @defproc[(network-size [net network?]) exact-nonnegative-integer?]{
   Return the total number of ip addresses in @racket[net].
 }
