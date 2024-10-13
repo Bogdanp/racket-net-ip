@@ -20,7 +20,7 @@ All IP addresses and network versions support the operations that follow.
 
 @deftogether[(@defproc[(make-ip-address [ip string?]) ip-address?]
               @defproc[#:link-target? #f (make-ip-address [ip bytes?]) ip-address?]
-              @defproc[#:link-target? #f (make-ip-address [ip exact-nonnegative-integer?] [version (or/c 4 16)]) ip-address?])]{
+              @defproc[#:link-target? #f (make-ip-address [ip exact-nonnegative-integer?] [version (or/c 4 6)]) ip-address?])]{
   Parse an IP address.
 
   @examples[#:label "IPv4 examples:"
