@@ -21,8 +21,8 @@
   [ip-address-bitcount (-> ip-address? exact-nonnegative-integer?)]
   [ip-address-size (-> ip-address? (or/c 32 128))]
   [ip-address-version (-> ip-address? (or/c 4 6))]
-  [ip-address-dec (->* (ip-address?) (exact-integer?) ip-address?)]
-  [ip-address-inc (->* (ip-address?) (exact-integer?) ip-address?)]
+  [ip-address-dec (->* [ip-address?] [exact-integer?] ip-address?)]
+  [ip-address-inc (->* [ip-address?] [exact-integer?] ip-address?)]
   [ip-address->bytes (-> ip-address? bytes?)]
   [ip-address->number (-> ip-address? exact-nonnegative-integer?)]
   [ip-address->string (-> ip-address? string?)]
@@ -93,7 +93,7 @@
   #:methods gen:custom-write
   [(define write-proc
      (make-constructor-style-printer
-      (lambda (addr) 'make-ip-address)
+      (lambda (_) 'make-ip-address)
       (lambda (addr) (list (ip-address->string addr)))))])
 
 (define-syntax-rule (define/comparison name fn)
