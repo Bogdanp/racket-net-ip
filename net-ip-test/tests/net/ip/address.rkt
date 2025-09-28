@@ -240,6 +240,7 @@
 
     (test-case "raises contract errors if given invalid addresses"
       (check-exn exn:fail:contract? (lambda () (string->ipv4-address "")))
+      (check-exn exn:fail:contract? (lambda () (string->ipv4-address "127.0.0.xx")))
       (check-exn exn:fail:contract? (lambda () (string->ipv4-address "256.256.256.256")))
       (check-exn exn:fail:contract? (lambda () (string->ipv4-address "255.255.255.255.255")))))))
 

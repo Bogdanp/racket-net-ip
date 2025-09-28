@@ -170,7 +170,8 @@
   (string-join (map number->string (ip-address->fields addr 4 8)) "."))
 
 (define (ipv4-octet? n)
-  (and (>= n 0)
+  (and n
+       (>= n 0)
        (<= n 255)))
 
 
